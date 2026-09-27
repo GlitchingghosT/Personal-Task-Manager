@@ -2,7 +2,10 @@ import axios from 'axios';
 import type { Task, CreateTaskInput, UpdateTaskInput } from '../types/task';
 
 const API = axios.create({
-  baseURL: 'http://localhost:5050/api',
+  // Uses localhost during development, and /api in production (Netlify)
+  baseURL: import.meta.env.DEV
+    ? 'http://localhost:5050/api'
+    : '/api',
 });
 
 export const getTasks = async (): Promise<Task[]> => {
