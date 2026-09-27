@@ -4,7 +4,6 @@ import home from '../assets/home.png';
 
 const Homepage: React.FC = () => {
   return (
-    // Removed bg-white to let your #FAF9FB background show
     <main className="pt-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center gap-10 text-left">
       <div className="flex flex-col items-start gap-6 w-full md:w-1/2">
         <div className="flex flex-col items-start">

@@ -6,18 +6,14 @@ import mongoose from "mongoose";
 import serverless from "serverless-http";
 import taskRoutes from "./routes/taskRoutes";
 
-// Load environment variables FIRST (before anything else uses them)
 dotenv.config();
 
-// Fix for Windows DNS SRV lookup issues with MongoDB Atlas
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 const app = express();
 
-// Debug log to verify the URI is loaded
 console.log("🔍 MONGODB_URI is:", process.env.MONGODB_URI ? "Loaded ✅" : "MISSING ❌");
 
-// Connect to MongoDB
 const connectDB = async () => {
     try {
         if (!process.env.MONGODB_URI) {
@@ -33,11 +29,9 @@ const connectDB = async () => {
 
 connectDB();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Routes
 app.use("/api/tasks", taskRoutes);
 
 app.get("/", (_req: Request, res: Response) => {
@@ -48,10 +42,8 @@ app.use((_req: Request, res: Response) => {
     res.status(404).json({ success: false, message: "Route not found" });
 });
 
-// Export the serverless handler for Netlify
 export const handler = serverless(app);
 
-// Only start the server locally (not on Netlify)
 if (process.env.NODE_ENV !== "production") {
     const PORT = process.env.PORT || 5050;
     app.listen(PORT, () => {

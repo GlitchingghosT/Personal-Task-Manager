@@ -16,7 +16,7 @@ const NewTask: React.FC = () => {
   
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [isTagsOpen, setIsTagsOpen] = useState(false); // State for custom dropdown
+  const [isTagsOpen, setIsTagsOpen] = useState(false);
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -49,16 +49,22 @@ const NewTask: React.FC = () => {
     try {
       await createTask(formData);
       navigate('/tasks');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating task:", error);
-      const message = error.response?.data?.message || "Failed to create task. Please check if the server is running.";
+      const response =
+        typeof error === 'object' && error !== null && 'response' in error
+          ? (error as { response?: { data?: { message?: unknown } } }).response
+          : undefined;
+      const message =
+        typeof response?.data?.message === 'string'
+          ? response.data.message
+          : "Failed to create task. Please check if the server is running.";
       setSubmitError(message);
     }
   };
 
   return (
     <main className="py-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-left min-h-screen">
-      {/* Header - Changed font-bold to font-semibold */}
       <Link to="/tasks" className="inline-flex items-center gap-2 text-3xl font-semibold text-gray-800 hover:text-[#974FD0] transition mb-8">
         <FaLessThan /> New Task
       </Link>
@@ -71,7 +77,6 @@ const NewTask: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-sm border border-gray-100 flex flex-col gap-8">
         
-        {/* Task Title */}
         <div className="relative mt-2">
           <label className="absolute -top-2 left-4 bg-white px-2 text-xs font-medium text-gray-500 z-10">
             Task Title
@@ -86,7 +91,6 @@ const NewTask: React.FC = () => {
           {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
         </div>
 
-        {/* Description */}
         <div className="relative mt-2">
           <label className="absolute -top-2 left-4 bg-white px-2 text-xs font-medium text-gray-500 z-10">
             Description
@@ -101,7 +105,6 @@ const NewTask: React.FC = () => {
           {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
         </div>
 
-        {/* Due Date */}
         <div className="relative mt-2">
           <label className="absolute -top-2 left-4 bg-white px-2 text-xs font-medium text-gray-500 z-10">
             Due Date
@@ -115,7 +118,6 @@ const NewTask: React.FC = () => {
           {errors.dueDate && <p className="text-red-500 text-xs mt-1">{errors.dueDate}</p>}
         </div>
 
-        {/* Custom Tags Dropdown */}
         <div className="relative mt-2">
           <label className="absolute -top-2 left-4 bg-white px-2 text-xs font-medium text-gray-500 z-10">
             Tags

@@ -37,7 +37,6 @@ const MyTask: React.FC = () => {
     }
   };
 
-  // Enhanced Sorting Logic
   const sortedTasks = tasks
     .filter(task => {
       const matchCategory = filterCategory === 'All' || task.category === filterCategory;
@@ -51,28 +50,23 @@ const MyTask: React.FC = () => {
       const aOverdue = new Date(a.dueDate) < now && !a.completed;
       const bOverdue = new Date(b.dueDate) < now && !b.completed;
 
-      // 1. Completed tasks always go to the bottom
       if (a.completed !== b.completed) {
         return a.completed ? 1 : -1;
       }
       
-      // 2. Overdue tasks go to the very top
       if (aOverdue !== bOverdue) {
         return aOverdue ? -1 : 1;
       }
 
-      // 3. Otherwise, sort by due date (nearest first)
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
     });
 
-  // Split the sorted array into three groups for rendering
   const overdueTasks = sortedTasks.filter(task => new Date(task.dueDate) < new Date() && !task.completed);
   const upcomingTasks = sortedTasks.filter(task => new Date(task.dueDate) >= new Date() && !task.completed);
   const completedTasks = sortedTasks.filter(task => task.completed);
 
   return (
     <main className="py-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-left min-h-screen">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <h2 className="text-3xl font-bold text-gray-800 tracking-tight">My Tasks</h2>
         <Link 
@@ -83,7 +77,6 @@ const MyTask: React.FC = () => {
         </Link>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-8">
         <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-md px-4 py-2 shadow-sm hover:border-gray-300 transition">
           <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Category:</label>
@@ -111,7 +104,6 @@ const MyTask: React.FC = () => {
         </div>
       </div>
 
-      {/* Task List */}
       {loading ? (
         <p className="text-center text-gray-500 py-10">Loading tasks...</p>
       ) : sortedTasks.length === 0 ? (
@@ -124,17 +116,14 @@ const MyTask: React.FC = () => {
       ) : (
         <div className="flex flex-col gap-5">
           
-          {/* Overdue Tasks Section */}
           {overdueTasks.map(task => (
             <TaskCard key={task._id} task={task} onDelete={handleDelete} />
           ))}
 
-          {/* Upcoming Tasks Section */}
           {upcomingTasks.map(task => (
             <TaskCard key={task._id} task={task} onDelete={handleDelete} />
           ))}
 
-          {/* Visual Demarcation Line for Completed Tasks */}
           {completedTasks.length > 0 && (
             <div className="flex items-center my-6">
               <div className="flex-grow border-t border-gray-300"></div>
@@ -145,7 +134,6 @@ const MyTask: React.FC = () => {
             </div>
           )}
 
-          {/* Completed Tasks Section */}
           {completedTasks.map(task => (
             <TaskCard key={task._id} task={task} onDelete={handleDelete} />
           ))}
@@ -153,7 +141,6 @@ const MyTask: React.FC = () => {
         </div>
       )}
       
-      {/* Back to Top */}
       <div className="text-center mt-12">
         <button 
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}

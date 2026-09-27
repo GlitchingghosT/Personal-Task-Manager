@@ -19,7 +19,7 @@ const EditTask: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [isTagsOpen, setIsTagsOpen] = useState(false); // State for custom dropdown
+  const [isTagsOpen, setIsTagsOpen] = useState(false);
 
   useEffect(() => {
     const fetchTask = async () => {
@@ -80,7 +80,6 @@ const EditTask: React.FC = () => {
 
   return (
     <main className="py-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-left min-h-screen">
-      {/* Header - Changed font-bold to font-semibold */}
       <Link to="/tasks" className="inline-flex items-center gap-2 text-3xl font-semibold text-gray-800 hover:text-[#974FD0] transition mb-8">
         <FaLessThan /> Edit Task
       </Link>
@@ -93,7 +92,6 @@ const EditTask: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-sm border border-gray-100 flex flex-col gap-8">
         
-        {/* Task Title */}
         <div className="relative mt-2">
           <label className="absolute -top-2 left-4 bg-white px-2 text-xs font-medium text-gray-500 z-10">
             Task Title
@@ -107,7 +105,6 @@ const EditTask: React.FC = () => {
           {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
         </div>
 
-        {/* Description */}
         <div className="relative mt-2">
           <label className="absolute -top-2 left-4 bg-white px-2 text-xs font-medium text-gray-500 z-10">
             Description
@@ -121,7 +118,6 @@ const EditTask: React.FC = () => {
           {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
         </div>
 
-        {/* Due Date */}
         <div className="relative mt-2">
           <label className="absolute -top-2 left-4 bg-white px-2 text-xs font-medium text-gray-500 z-10">
             Due Date
@@ -135,7 +131,6 @@ const EditTask: React.FC = () => {
           {errors.dueDate && <p className="text-red-500 text-xs mt-1">{errors.dueDate}</p>}
         </div>
 
-        {/* Custom Tags Dropdown */}
         <div className="relative mt-2">
           <label className="absolute -top-2 left-4 bg-white px-2 text-xs font-medium text-gray-500 z-10">
             Tags
@@ -180,7 +175,6 @@ const EditTask: React.FC = () => {
           )}
         </div>
 
-        {/* Completion Toggle */}
         <div className="flex items-center gap-3 mt-4 bg-gray-50 p-4 rounded-md border border-gray-100">
           <input 
             type="checkbox" 

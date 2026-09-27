@@ -9,7 +9,6 @@ interface TaskCardProps {
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, onDelete }) => {
-  // A task is overdue if the due date is in the past AND it's not completed
   const isOverdue = new Date(task.dueDate) < new Date() && !task.completed;
 
   return (
@@ -17,11 +16,10 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onDelete }) => {
       task.completed 
         ? 'bg-gray-50 border-gray-200 opacity-80' 
         : isOverdue
-          ? 'bg-white border-red-200 border-l-4 border-l-red-500 hover:shadow-lg transform hover:-translate-y-1' // Overdue style
+          ? 'bg-white border-red-200 border-l-4 border-l-red-500 hover:shadow-lg transform hover:-translate-y-1'
           : 'bg-white border-gray-100 hover:shadow-lg transform hover:-translate-y-1'
     }`}>
       
-      {/* Top Row: Badges & Actions with Bolder Border */}
       <div className="flex justify-between items-center border-b-2 border-gray-100 pb-3 mb-2">
         <div className="flex items-center gap-2">
           <span className={`text-sm font-semibold tracking-wide ${
@@ -30,14 +28,12 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onDelete }) => {
             {task.category}
           </span>
           
-          {/* Visual Indicator for Overdue Tasks */}
           {isOverdue && (
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-200">
               Overdue
             </span>
           )}
 
-          {/* Visual Indicator for Completed Tasks */}
           {task.completed && (
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700 border border-green-200">
               Completed
@@ -61,7 +57,6 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onDelete }) => {
         </div>
       </div>
 
-      {/* Middle: Title & Description */}
       <div>
         <h3 className={`text-lg font-bold tracking-tight ${
           task.completed ? 'line-through text-gray-400' : 'text-gray-800'
@@ -75,7 +70,6 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onDelete }) => {
         </p>
       </div>
 
-      {/* Bottom: Due Date */}
       <div className="text-xs font-medium mt-2 border-t border-gray-100 pt-3">
         <span className="text-gray-400">Due: </span>
         <span className={isOverdue ? 'text-red-500 font-bold' : 'text-gray-600'}>
