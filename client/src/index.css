@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+#root {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  font-family: "Signika Negative", sans-serif;
+  background-color: #FAF9FB;
+}
