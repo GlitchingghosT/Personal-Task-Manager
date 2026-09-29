@@ -1,52 +1,47 @@
-import dns from "dns";
-import express, { Request, Response } from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import mongoose from "mongoose";
-import serverless from "serverless-http";
-import taskRoutes from "./routes/taskRoutes";
+import dns from 'dns';
+dns.setServers(['8.8.8.8', '8.8.4.4']);
+
+import express from 'express';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import taskRoutes from './routes/taskRoutes';
 
 dotenv.config();
 
-dns.setServers(["8.8.8.8", "1.1.1.1"]);
-
 const app = express();
 
-console.log("🔍 MONGODB_URI is:", process.env.MONGODB_URI ? "Loaded ✅" : "MISSING ❌");
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://tasktimely.netlify.app'
+];
 
-const connectDB = async () => {
-    try {
-        if (!process.env.MONGODB_URI) {
-            throw new Error("MONGODB_URI is not defined in your .env file");
-        }
-        await mongoose.connect(process.env.MONGODB_URI);
-        console.log("✅ MongoDB Connected");
-    } catch (error) {
-        console.error("❌ Database connection error:", error);
-        process.exit(1);
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      return callback(new Error('CORS policy violation'), false);
     }
-};
+    return callback(null, true);
+  },
+  credentials: true
+}));
 
-connectDB();
-
-app.use(cors());
 app.use(express.json());
 
-app.use("/api/tasks", taskRoutes);
+mongoose.connect(process.env.MONGODB_URI as string)
+  .then(() => console.log('MongoDB connected'))
+  .catch((err) => console.error('MongoDB connection error:', err));
 
-app.get("/", (_req: Request, res: Response) => {
-    res.status(200).json({ message: "Task Manager API is running..." });
+app.get('/api/health', (req, res) => {
+  res.status(200).send('OK');
 });
 
-app.use((_req: Request, res: Response) => {
-    res.status(404).json({ success: false, message: "Route not found" });
+app.use('/api/tasks', taskRoutes);
+
+const PORT = Number(process.env.PORT) || 5050;
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
 });
-
-export const handler = serverless(app);
-
-if (process.env.NODE_ENV !== "production") {
-    const PORT = process.env.PORT || 5050;
-    app.listen(PORT, () => {
-        console.log(`🚀 Server is running on http://localhost:${PORT}`);
-    });
-}

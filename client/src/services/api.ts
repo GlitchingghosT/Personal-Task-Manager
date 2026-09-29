@@ -1,32 +1,13 @@
 import axios from 'axios';
-import type { Task, CreateTaskInput, UpdateTaskInput } from '../types/task';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5050';
 
 const API = axios.create({
-  baseURL: import.meta.env.DEV
-    ? 'http://localhost:5050/api'
-    : '/api',
+  baseURL: `${API_URL}/api`,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true,
 });
 
-export const getTasks = async (): Promise<Task[]> => {
-  const response = await API.get<{ success: boolean; data: Task[] }>('/tasks');
-  return response.data.data;
-};
-
-export const getTaskById = async (id: string): Promise<Task> => {
-  const response = await API.get<{ success: boolean; data: Task }>(`/tasks/${id}`);
-  return response.data.data;
-};
-
-export const createTask = async (taskData: CreateTaskInput): Promise<Task> => {
-  const response = await API.post<{ success: boolean; data: Task }>('/tasks', taskData);
-  return response.data.data;
-};
-
-export const updateTask = async (id: string, updates: UpdateTaskInput): Promise<Task> => {
-  const response = await API.put<{ success: boolean; data: Task }>(`/tasks/${id}`, updates);
-  return response.data.data;
-};
-
-export const deleteTask = async (id: string): Promise<void> => {
-  await API.delete(`/tasks/${id}`);
-};
+export default API;
