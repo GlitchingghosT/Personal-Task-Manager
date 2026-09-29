@@ -11,19 +11,29 @@ const MyTask: React.FC = () => {
   const [filterCategory, setFilterCategory] = useState<string>('All');
   const [filterStatus, setFilterStatus] = useState<string>('All');
 
-  const fetchTasks = async () => {
-    try {
-      const data = await getTasks();
-      setTasks(data);
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchTasks();
+    let cancelled = false;
+
+    const loadTasks = async () => {
+      try {
+        const data = await getTasks();
+        if (!cancelled) {
+          setTasks(data);
+        }
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadTasks();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleDelete = async (id: string) => {
