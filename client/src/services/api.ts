@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Task } from '../types/task';
+import type { CreateTaskInput, Task } from '../types/task';
 
 const API_URL = import.meta.env.PROD
   ? 'https://tasktimely-backend.onrender.com'
@@ -22,7 +22,7 @@ export const getTaskById = async (id: string): Promise<Task> => {
   return response.data.data;
 };
 
-export const createTask = async (taskData: Omit<Task, '_id'>): Promise<Task> => {
+export const createTask = async (taskData: CreateTaskInput): Promise<Task> => {
   const response = await API.post('/tasks', taskData);
   return response.data.data;
 };
