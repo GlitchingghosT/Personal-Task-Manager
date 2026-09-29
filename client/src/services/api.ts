@@ -1,25 +1,9 @@
 import axios from 'axios';
+import type { Task } from '../types/task';
 
 const API_URL = import.meta.env.PROD
   ? 'https://tasktimely-backend.onrender.com'
   : 'http://localhost:5050';
-
-export interface Task {
-  _id: string;
-  title: string;
-  description?: string;
-  dueDate?: string;
-  category?: string;
-  completed: boolean;
-}
-
-export interface TaskPayload {
-  title: string;
-  description?: string;
-  dueDate?: string;
-  category?: string;
-  completed?: boolean;
-}
 
 const API = axios.create({
   baseURL: `${API_URL}/api`,
@@ -38,12 +22,12 @@ export const getTaskById = async (id: string): Promise<Task> => {
   return response.data.data;
 };
 
-export const createTask = async (taskData: TaskPayload): Promise<Task> => {
+export const createTask = async (taskData: Omit<Task, '_id'>): Promise<Task> => {
   const response = await API.post('/tasks', taskData);
   return response.data.data;
 };
 
-export const updateTask = async (id: string, taskData: Partial<TaskPayload>): Promise<Task> => {
+export const updateTask = async (id: string, taskData: Partial<Task>): Promise<Task> => {
   const response = await API.put(`/tasks/${id}`, taskData);
   return response.data.data;
 };
