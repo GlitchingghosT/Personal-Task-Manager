@@ -5,10 +5,15 @@ const API_URL = import.meta.env.PROD
   ? 'https://tasktimely-backend.onrender.com'
   : 'http://localhost:5050';
 
+const CLIENT_ID_KEY = 'tasktimely-client-id';
+const clientId = localStorage.getItem(CLIENT_ID_KEY) ?? crypto.randomUUID();
+localStorage.setItem(CLIENT_ID_KEY, clientId);
+
 const API = axios.create({
   baseURL: `${API_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
+    'X-Client-ID': clientId,
   },
 });
 

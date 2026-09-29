@@ -1,12 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const taskController_js_1 = require("../controllers/taskController.js");
+const taskController_1 = require("../controllers/taskController");
 const router = (0, express_1.Router)();
-router.get('/', taskController_js_1.getTasks);
-router.get('/:id', taskController_js_1.getTaskById);
-router.post('/', taskController_js_1.createTask);
-router.put('/:id', taskController_js_1.updateTask);
-router.delete('/:id', taskController_js_1.deleteTask);
+router.route("/").get(taskController_1.getTasks).post(taskController_1.createTask);
+router.route("/:id").get(taskController_1.getTaskById).put(taskController_1.updateTask).delete(taskController_1.deleteTask);
 exports.default = router;
-//# sourceMappingURL=taskRoutes.js.map

@@ -1,6 +1,7 @@
 import { Schema, model, Document } from "mongoose";
 
 export interface ITask extends Document {
+    ownerId: string;
     title: string;
     description: string;
     dueDate: Date;
@@ -12,6 +13,7 @@ export interface ITask extends Document {
 
 const taskSchema = new Schema<ITask>(
     {
+        ownerId: { type: String, required: true, index: true },
         title: { type: String, required: [true, "Please add a task title"], trim: true },
         description: { type: String, required: [true, "Please add a description"], trim: true },
         dueDate: { type: Date, required: [true, "Please add a due date"] },
