@@ -9,7 +9,9 @@ interface TaskCardProps {
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, onDelete }) => {
-  const isOverdue = new Date(task.dueDate) < new Date() && !task.completed;
+  const dueDate = task.dueDate ? new Date(task.dueDate) : null;
+  const hasDueDate = dueDate !== null && !Number.isNaN(dueDate.getTime());
+  const isOverdue = hasDueDate && dueDate < new Date() && !task.completed;
 
   return (
     <div className={`p-6 rounded-lg border flex flex-col gap-3 shadow-sm transition-all duration-300 text-left ${
@@ -73,9 +75,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onDelete }) => {
       <div className="text-xs font-medium mt-2 border-t border-gray-100 pt-3">
         <span className="text-gray-400">Due: </span>
         <span className={isOverdue ? 'text-red-500 font-bold' : 'text-gray-600'}>
-          {new Date(task.dueDate).toLocaleDateString('en-US', { 
+          {hasDueDate ? dueDate.toLocaleDateString('en-US', { 
             year: 'numeric', month: 'short', day: 'numeric' 
-          })}
+          }) : 'Not set'}
         </span>
       </div>
     </div>

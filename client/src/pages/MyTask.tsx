@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaTrashAlt } from 'react-icons/fa';
 import { getTasks, deleteTask } from '../services/api';
 import type { Task } from '../types/task';
 import TaskCard from '../components/TaskCard';
 
+const getDueDateTime = (dueDate: string): number => {
+  const timestamp = new Date(dueDate).getTime();
+  return Number.isFinite(timestamp) ? timestamp : Number.POSITIVE_INFINITY;
+};
+
 const MyTask: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingAll, setDeletingAll] = useState(false);
+  const [deleteAllError, setDeleteAllError] = useState<string | null>(null);
   const [filterCategory, setFilterCategory] = useState<string>('All');
   const [filterStatus, setFilterStatus] = useState<string>('All');
 
@@ -47,6 +54,28 @@ const MyTask: React.FC = () => {
     }
   };
 
+  const handleDeleteAll = async () => {
+    if (tasks.length === 0 || deletingAll) return;
+
+    const confirmed = window.confirm(`Delete all ${tasks.length} tasks? This cannot be undone.`);
+    if (!confirmed) return;
+
+    setDeletingAll(true);
+    setDeleteAllError(null);
+
+    const results = await Promise.allSettled(tasks.map(task => deleteTask(task._id)));
+    const deletedIds = new Set(
+      results.flatMap((result, index) => result.status === 'fulfilled' ? [tasks[index]._id] : [])
+    );
+    const failedCount = results.length - deletedIds.size;
+
+    setTasks(currentTasks => currentTasks.filter(task => !deletedIds.has(task._id)));
+    if (failedCount > 0) {
+      setDeleteAllError(`${failedCount} task${failedCount === 1 ? '' : 's'} could not be deleted. Please try again.`);
+    }
+    setDeletingAll(false);
+  };
+
   const sortedTasks = tasks
     .filter(task => {
       const matchCategory = filterCategory === 'All' || task.category === filterCategory;
@@ -56,9 +85,11 @@ const MyTask: React.FC = () => {
       return matchCategory && matchStatus;
     })
     .sort((a, b) => {
-      const now = new Date();
-      const aOverdue = new Date(a.dueDate) < now && !a.completed;
-      const bOverdue = new Date(b.dueDate) < now && !b.completed;
+      const now = Date.now();
+      const aDueDate = getDueDateTime(a.dueDate);
+      const bDueDate = getDueDateTime(b.dueDate);
+      const aOverdue = aDueDate < now && !a.completed;
+      const bOverdue = bDueDate < now && !b.completed;
 
       if (a.completed !== b.completed) {
         return a.completed ? 1 : -1;
@@ -68,24 +99,40 @@ const MyTask: React.FC = () => {
         return aOverdue ? -1 : 1;
       }
 
-      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      return aDueDate - bDueDate;
     });
 
-  const overdueTasks = sortedTasks.filter(task => new Date(task.dueDate) < new Date() && !task.completed);
-  const upcomingTasks = sortedTasks.filter(task => new Date(task.dueDate) >= new Date() && !task.completed);
+  const overdueTasks = sortedTasks.filter(task => getDueDateTime(task.dueDate) < Date.now() && !task.completed);
+  const upcomingTasks = sortedTasks.filter(task => getDueDateTime(task.dueDate) >= Date.now() && !task.completed);
   const completedTasks = sortedTasks.filter(task => task.completed);
 
   return (
     <main className="py-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-left min-h-screen">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <h2 className="text-3xl font-bold text-gray-800 tracking-tight">My Tasks</h2>
-        <Link 
-          to="/tasks/new" 
-          className="flex items-center gap-2 text-[#974FD0] font-medium hover:underline transition text-sm"
-        >
-          <FaPlus /> Add New Task
-        </Link>
+        <div className="flex flex-wrap items-center gap-4">
+          {tasks.length > 0 && (
+            <button
+              type="button"
+              onClick={handleDeleteAll}
+              disabled={deletingAll}
+              className="flex items-center gap-2 text-sm font-medium text-red-600 hover:text-red-700 hover:underline transition disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <FaTrashAlt /> {deletingAll ? 'Deleting tasks...' : 'Delete All Tasks'}
+            </button>
+          )}
+          <Link 
+            to="/tasks/new" 
+            className="flex items-center gap-2 text-[#974FD0] font-medium hover:underline transition text-sm"
+          >
+            <FaPlus /> Add New Task
+          </Link>
+        </div>
       </div>
+
+      {deleteAllError && (
+        <p role="alert" className="mb-6 text-sm text-red-600">{deleteAllError}</p>
+      )}
 
       <div className="flex flex-wrap gap-4 mb-8">
         <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-md px-4 py-2 shadow-sm hover:border-gray-300 transition">
