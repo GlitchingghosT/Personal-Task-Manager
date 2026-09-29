@@ -10,4 +10,29 @@ const API = axios.create({
   withCredentials: true,
 });
 
+export const getTasks = async () => {
+  const response = await API.get('/tasks');
+  return response.data;
+};
+
+export const getTaskById = async (id: string) => {
+  const response = await API.get(`/tasks/${id}`);
+  return response.data;
+};
+
+export const createTask = async (taskData: any) => {
+  const response = await API.post('/tasks', taskData);
+  return response.data;
+};
+
+export const updateTask = async (id: string, taskData: any) => {
+  const response = await API.put(`/tasks/${id}`, taskData);
+  return response.data;
+};
+
+export const deleteTask = async (id: string) => {
+  const response = await API.delete(`/tasks/${id}`);
+  return response.data;
+};
+
 export default API;
