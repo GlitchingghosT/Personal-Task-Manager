@@ -3,9 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteTask = exports.updateTask = exports.createTask = exports.getTaskById = exports.getTasks = void 0;
 const Task_1 = require("../models/Task");
 const getOwnerId = (req, res) => {
-    const ownerId = req.get("X-Client-ID");
-    if (!ownerId || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(ownerId)) {
-        res.status(400).json({ success: false, message: "A valid client ID is required" });
+    const ownerId = req.auth?.userId;
+    if (!ownerId) {
+        res.status(401).json({ success: false, message: "Authentication required" });
         return null;
     }
     return ownerId;
@@ -50,7 +50,8 @@ const createTask = async (req, res) => {
         res.status(201).json({ success: true, data: task });
     }
     catch (error) {
-        res.status(400).json({ success: false, message: error.message });
+        const message = error instanceof Error ? error.message : "Invalid task data";
+        res.status(400).json({ success: false, message });
     }
 };
 exports.createTask = createTask;
@@ -68,7 +69,8 @@ const updateTask = async (req, res) => {
         res.status(200).json({ success: true, data: task });
     }
     catch (error) {
-        res.status(400).json({ success: false, message: error.message });
+        const message = error instanceof Error ? error.message : "Invalid task data";
+        res.status(400).json({ success: false, message });
     }
 };
 exports.updateTask = updateTask;

@@ -2,9 +2,9 @@ import { Request, Response } from "express";
 import { Task } from "../models/Task";
 
 const getOwnerId = (req: Request, res: Response): string | null => {
-    const ownerId = req.get("X-Client-ID");
-    if (!ownerId || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(ownerId)) {
-        res.status(400).json({ success: false, message: "A valid client ID is required" });
+    const ownerId = req.auth?.userId;
+    if (!ownerId) {
+        res.status(401).json({ success: false, message: "Authentication required" });
         return null;
     }
     return ownerId;
@@ -43,8 +43,9 @@ export const createTask = async (req: Request, res: Response): Promise<void> => 
         const { title, description, dueDate, category, completed } = req.body;
         const task = await Task.create({ ownerId, title, description, dueDate, category, completed });
         res.status(201).json({ success: true, data: task });
-    } catch (error: any) {
-        res.status(400).json({ success: false, message: error.message });
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Invalid task data";
+        res.status(400).json({ success: false, message });
     }
 };
 
@@ -61,8 +62,9 @@ export const updateTask = async (req: Request, res: Response): Promise<void> => 
         );
         if (!task) { res.status(404).json({ success: false, message: "Task not found" }); return; }
         res.status(200).json({ success: true, data: task });
-    } catch (error: any) {
-        res.status(400).json({ success: false, message: error.message });
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Invalid task data";
+        res.status(400).json({ success: false, message });
     }
 };
 

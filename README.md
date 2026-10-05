@@ -1,93 +1,109 @@
 # TaskDuty - Personal Task Manager
 
-A full-stack Personal Task Manager built as part of the Techstudio Internship Program (Stage 1). This application allows users to create, read, update, and delete tasks, with features for filtering, tracking due dates, and marking tasks as completed.
+A personal task manager built for the Techstudio Internship Program. The backend provides task CRUD, authentication, and per-user task authorization. Stage 2 is tested through Postman or another API client; the React client has not yet been connected to the authentication flow.
 
-## 🚀 Tech Stack
+## Tech stack
 
-**Client:**
-- React (Vite)
-- TypeScript
-- Tailwind CSS
-- React Router DOM
-- Axios
-- React Icons
+- Client: React, Vite, TypeScript, Tailwind CSS
+- Server: Node.js, Express, TypeScript, MongoDB, Mongoose
+- Authentication: bcryptjs password hashing and JWT bearer tokens
 
-**Server:**
-- Node.js
-- Express
-- TypeScript
-- In-Memory Store (See Known Issues)
+## Backend setup
 
-## ✨ Features
+Prerequisites: Node.js 18+ and MongoDB (local or hosted).
 
-- **CRUD Operations:** Create, read, update, and delete tasks.
-- **Task Properties:** Each task has a Title, Description, Due Date, Category (Urgent/Important), and Completion Status.
-- **Validation:** Form validation ensures all fields are required and prevents due dates in the past.
-- **Filtering:** Filter tasks by category (Urgent/Important) and completion status (Pending/Completed).
-- **Smart Sorting:** Overdue tasks are pinned to the top, followed by upcoming tasks, with completed tasks dropping to the bottom.
-- **Visual Indicators:** Clear badges for "Overdue" and "Completed" tasks, with a visual divider separating active tasks from completed ones.
-- **Responsive UI:** Designed to match the provided Figma mockup, with a clean, modern interface.
+1. Open a terminal in `server/` and install dependencies:
 
-## 📸 Screenshots
+   ```bash
+   npm install
+   ```
 
-### Homepage
-![Homepage](./screenshots/homepage.png)
+2. Create `server/.env`:
 
-### My Tasks
-![My Tasks](./screenshots/my-tasks.png)
+   ```env
+   MONGODB_URI=mongodb://127.0.0.1:27017/task-manager
+   JWT_SECRET=replace-this-with-a-long-random-secret
+   PORT=5050
+   ```
 
-### New Task Form
-![New Task Form](./screenshots/new-task.png)
+   `MONGODB_URI` is optional when using the local default shown above. `JWT_SECRET` is required; use a long, random value and do not commit `.env`.
 
-## 📁 Folder Structure
+3. Start MongoDB, then start the API:
 
-personal-task-manager/
-├── client/ # React frontend (Vite + TypeScript)
-│ ├── src/
-│ │ ├── components/
-│ │ ├── pages/
-│ │ ├── services/
-│ │ └── types/
-│ └── package.json
-└── server/ # Express backend (Node + TypeScript)
-├── src/
-│ ├── controllers/
-│ ├── routes/
-│ └── index.ts
-└── package.json
+   ```bash
+   npm run dev
+   ```
 
+   The API listens at `http://localhost:5050`. Verify it with `GET /api/health`.
 
-## 🛠️ Setup Instructions
+4. Check the TypeScript build with `npm run build`.
 
-### Prerequisites
-- Node.js (v18 or higher)
-- npm or yarn
+## API walkthrough (Postman)
 
-### 1. Clone the repository
-```bash
-git clone <PASTE-YOUR-GITHUB-REPO-LINK-HERE>
-cd personal-task-manager
+Send JSON bodies with `Content-Type: application/json`.
 
+### Register
 
-Setup the Server
-bash
-cd server
-npm install
-npm run dev
-Server runs on http://localhost:5050
+`POST /api/auth/register`
 
+```json
+{
+  "email": "alex@example.com",
+  "password": "strongpass123"
+}
+```
 
-Setup the Client
-Open a new terminal:
+Registration returns `201` and a user ID, email, and JWT. Passwords must be at least 8 characters and no more than 72 UTF-8 bytes. Email addresses are normalized to lowercase and must be unique.
 
-bash
-cd client
-npm install
-npm run dev
-Client runs on http://localhost:5173
+### Log in
 
+`POST /api/auth/login`
 
-⚠️ Known Issues
-Data Persistence: The server uses an in-memory array instead of a database. All tasks will be lost when the server restarts. This was a deliberate choice to keep the local setup frictionless (no MongoDB installation required for evaluation).
+```json
+{
+  "email": "alex@example.com",
+  "password": "strongpass123"
+}
+```
 
-Authentication: There is no user authentication. All tasks are global to the application
+Login returns a JWT with a one-hour expiry. For every task request, set:
+
+```http
+Authorization: Bearer <token>
+```
+
+### Task endpoints
+
+All task endpoints require a valid bearer token. The API determines the owner from the token, not from request body fields or a user-supplied ID.
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `GET` | `/api/tasks` | List the signed-in user's tasks |
+| `POST` | `/api/tasks` | Create a task for the signed-in user |
+| `GET` | `/api/tasks/:id` | Get one of the signed-in user's tasks |
+| `PUT` | `/api/tasks/:id` | Update one of the signed-in user's tasks |
+| `DELETE` | `/api/tasks/:id` | Delete one of the signed-in user's tasks |
+
+Example create/update body:
+
+```json
+{
+  "title": "Prepare weekly report",
+  "description": "Summarize this week's work",
+  "dueDate": "2026-10-15T12:00:00.000Z",
+  "category": "Important",
+  "completed": false
+}
+```
+
+Task records belonging to another account are not accessible: single-task reads, updates, and deletes return `404` when the task is not owned by the authenticated user. Requests without a valid token return `401`.
+
+## Frontend
+
+The React client remains available with `cd client && npm install && npm run dev`, but it still uses the previous unauthenticated API flow. For the Stage 2 deliverable, test the backend with Postman; frontend authentication integration is not included.
+
+## Known issues and notes
+
+- MongoDB must be running and reachable for the backend to start.
+- Existing tasks created before authentication used client-generated IDs and are not migrated to accounts.
+- JWT tokens expire after one hour; log in again to get a fresh token.

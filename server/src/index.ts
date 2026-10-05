@@ -3,8 +3,9 @@ dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 import express from 'express';
 import cors from 'cors';
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import { connectDB } from './config/db';
+import authRoutes from './routes/authRoutes';
 import taskRoutes from './routes/taskRoutes';
 
 dotenv.config();
@@ -21,23 +22,32 @@ app.use(cors({
   origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Client-ID']
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
-
-mongoose.connect(process.env.MONGODB_URI as string)
-  .then(() => console.log('MongoDB connected'))
-  .catch((err) => console.error('MongoDB connection error:', err));
 
 app.get('/api/health', (req, res) => {
   res.status(200).send('OK');
 });
 
+app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 
 const PORT = Number(process.env.PORT) || 5050;
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
+const startServer = async (): Promise<void> => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET must be set before starting the server');
+  }
+
+  await connectDB();
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+};
+
+startServer().catch((error: unknown) => {
+  console.error('Failed to start server:', error);
+  process.exitCode = 1;
 });
