@@ -15,6 +15,7 @@ const MyTask: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [deletingAll, setDeletingAll] = useState(false);
   const [deleteAllError, setDeleteAllError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('All');
   const [filterStatus, setFilterStatus] = useState<string>('All');
 
@@ -78,11 +79,17 @@ const MyTask: React.FC = () => {
 
   const sortedTasks = tasks
     .filter(task => {
+      const normalizedQuery = searchQuery.trim().toLowerCase();
+      const matchesSearch = normalizedQuery === '' || [
+        task.title,
+        task.description,
+        task.category,
+      ].some(value => value.toLowerCase().includes(normalizedQuery));
       const matchCategory = filterCategory === 'All' || task.category === filterCategory;
       const matchStatus = filterStatus === 'All' || 
                           (filterStatus === 'Completed' && task.completed) || 
                           (filterStatus === 'Pending' && !task.completed);
-      return matchCategory && matchStatus;
+      return matchesSearch && matchCategory && matchStatus;
     })
     .sort((a, b) => {
       const now = Date.now();
@@ -136,6 +143,17 @@ const MyTask: React.FC = () => {
 
       <div className="flex flex-wrap gap-4 mb-8">
         <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-md px-4 py-2 shadow-sm hover:border-gray-300 transition">
+          <label htmlFor="task-search" className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Search:</label>
+          <input
+            id="task-search"
+            type="search"
+            value={searchQuery}
+            onChange={event => setSearchQuery(event.target.value)}
+            placeholder="Title, description, or category"
+            className="min-w-0 text-sm text-gray-700 bg-transparent focus:outline-none"
+          />
+        </div>
+        <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-md px-4 py-2 shadow-sm hover:border-gray-300 transition">
           <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Category:</label>
           <select 
             value={filterCategory} 
@@ -165,10 +183,16 @@ const MyTask: React.FC = () => {
         <p className="text-center text-gray-500 py-10">Loading tasks...</p>
       ) : sortedTasks.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-lg border border-dashed border-gray-300">
-          <p className="text-gray-500 mb-4">No tasks found matching your filters.</p>
-          <Link to="/tasks/new" className="text-[#974FD0] font-medium hover:underline transition">
-            Create your first task
-          </Link>
+          {tasks.length === 0 ? (
+            <>
+              <p className="text-gray-500 mb-4">You don't have any tasks yet.</p>
+              <Link to="/tasks/new" className="text-[#974FD0] font-medium hover:underline transition">
+                Create your first task
+              </Link>
+            </>
+          ) : (
+            <p className="text-gray-500">No tasks match your search and filters.</p>
+          )}
         </div>
       ) : (
         <div className="flex flex-col gap-5">

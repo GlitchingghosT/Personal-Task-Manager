@@ -102,6 +102,8 @@ Task records belonging to another account are not accessible: single-task reads,
 
 The React client remains available with `cd client && npm install && npm run dev`, but it still uses the previous unauthenticated API flow. For the Stage 2 deliverable, test the backend with Postman; frontend authentication integration is not included.
 
+The task list includes a search field that matches task titles, descriptions, and categories. Search works together with the existing category and status filters.
+
 ## Known issues and notes
 
 - MongoDB must be running and reachable for the backend to start.
