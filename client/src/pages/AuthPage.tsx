@@ -21,6 +21,10 @@ const getErrorMessage = (error: unknown): string => {
     if (!error.response) {
       return 'Could not connect to the server. Check that the API is running and try again.';
     }
+    if (error.response.status === 404) {
+      return 'The server does not have this authentication endpoint yet. Please redeploy the backend and try again.';
+    }
+    return `The request failed (${error.response.status}). Please try again.`;
   }
   return 'Something went wrong. Please try again.';
 };
