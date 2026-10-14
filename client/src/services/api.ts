@@ -3,7 +3,7 @@ import type { CreateTaskInput, Task } from '../types/task';
 import { getAuthToken } from './authStorage';
 
 const API_URL = import.meta.env.PROD
-  ? 'https://tasktimely-backend.onrender.com'
+  ? 'https://personal-task-manager-8sqp.onrender.com'
   : 'http://localhost:5050';
 
 const CLIENT_ID_KEY = 'tasktimely-client-id';
