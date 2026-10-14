@@ -128,7 +128,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
+                <label htmlFor="email" className="mb-2 block text-left text-sm font-medium text-gray-700">
                   Email address
                 </label>
                 <div className="relative">
@@ -147,7 +147,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
               </div>
 
               <div>
-                <label htmlFor="password" className="mb-2 block text-sm font-medium text-gray-700">
+                <label htmlFor="password" className="mb-2 block text-left text-sm font-medium text-gray-700">
                   Password
                 </label>
                 <div className="relative">
@@ -176,7 +176,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
 
               {isSignup && (
                 <div>
-                  <label htmlFor="confirm-password" className="mb-2 block text-sm font-medium text-gray-700">
+                  <label htmlFor="confirm-password" className="mb-2 block text-left text-sm font-medium text-gray-700">
                     Confirm password
                   </label>
                   <div className="relative">
