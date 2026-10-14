@@ -100,7 +100,7 @@ Task records belonging to another account are not accessible: single-task reads,
 
 ## Frontend
 
-The React client remains available with `cd client && npm install && npm run dev`, but it still uses the previous unauthenticated API flow. For the Stage 2 deliverable, test the backend with Postman; frontend authentication integration is not included.
+The React client includes sign-up and login pages at `/signup` and `/login`. After authentication, its JWT is stored locally and attached to task API requests. Task list, create, and edit pages require a signed-in user.
 
 The task list includes a search field that matches task titles, descriptions, and categories. Search works together with the existing category and status filters.
 

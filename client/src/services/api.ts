@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { CreateTaskInput, Task } from '../types/task';
+import { getAuthToken } from './authStorage';
 
 const API_URL = import.meta.env.PROD
   ? 'https://tasktimely-backend.onrender.com'
@@ -16,6 +17,32 @@ const API = axios.create({
     'X-Client-ID': clientId,
   },
 });
+
+API.interceptors.request.use((config) => {
+  const token = getAuthToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+interface AuthResponse {
+  data: {
+    email: string;
+    token: string;
+  };
+}
+
+const authenticate = async (path: '/auth/login' | '/auth/register', email: string, password: string) => {
+  const response = await API.post<AuthResponse>(path, { email, password });
+  return response.data.data;
+};
+
+export const register = (email: string, password: string) =>
+  authenticate('/auth/register', email, password);
+
+export const login = (email: string, password: string) =>
+  authenticate('/auth/login', email, password);
 
 type ApiTask = Partial<Task> & {
   _id: string;
