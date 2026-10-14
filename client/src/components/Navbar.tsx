@@ -1,10 +1,13 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import pfp from '../assets/header.png';
 import logo from '../assets/logo.png';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { token, email, signOut } = useAuth();
   const path = location.pathname;
 
   const isHomepage = path === '/';
@@ -22,27 +25,47 @@ const Navbar: React.FC = () => {
           
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-6 text-sm font-medium text-gray-600">
-              {isHomepage && (
+              {token && isHomepage && (
                 <>
                   <Link to="/tasks/new" className="hover:text-[#974FD0] transition">New Task</Link>
                   <Link to="/tasks" className="hover:text-[#974FD0] transition">All Tasks</Link>
                 </>
               )}
-              {isMyTask && (
+              {token && isMyTask && (
                 <Link to="/tasks/new" className="hover:text-[#974FD0] transition">New Task</Link>
               )}
-              {isNewOrEdit && (
+              {token && isNewOrEdit && (
                 <Link to="/tasks" className="hover:text-[#974FD0] transition">All Tasks</Link>
               )}
             </div>
             
-            <div>
-              <img 
-                src={pfp} 
-                alt="Profile" 
-                className="w-10 h-10 rounded-full object-cover border border-gray-200" 
-              />
-            </div>
+            {token ? (
+              <div className="flex items-center gap-3">
+                <img
+                  src={pfp}
+                  alt=""
+                  className="hidden h-10 w-10 rounded-full border border-gray-200 object-cover sm:block"
+                />
+                <span className="hidden max-w-40 truncate text-sm text-gray-600 md:block">{email}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    signOut();
+                    navigate('/login');
+                  }}
+                  className="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 transition hover:border-[#974FD0] hover:text-[#974FD0]"
+                >
+                  Sign out
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-4 text-sm font-semibold">
+                <Link to="/login" className="text-gray-600 transition hover:text-[#974FD0]">Sign in</Link>
+                <Link to="/signup" className="rounded-lg bg-[#974FD0] px-4 py-2.5 text-white transition hover:bg-[#833bbd]">
+                  Get started
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
